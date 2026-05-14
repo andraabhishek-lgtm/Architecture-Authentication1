@@ -102,7 +102,7 @@
       margin-bottom: 36px;
       letter-spacing: 4px;
       text-transform: uppercase;
-      text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+      text-shadow: 0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(255,255,255,0.15);
     }
 
     /* ── FORM FIELDS ── */
@@ -120,11 +120,12 @@
       font-size: 14px;
       color: #fff;
       outline: none;
+      text-shadow: 0 1px 6px rgba(0,0,0,0.6);
       transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
       font-family: inherit;
     }
 
-    .field input::placeholder { color: rgba(255,255,255,0.5); }
+    .field input::placeholder { color: rgba(255,255,255,0.78); }
 
     .field input:focus {
       background: rgba(255, 255, 255, 0.22);
@@ -139,7 +140,7 @@
       right: 15px;
       top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.55);
+      color: rgba(255,255,255,0.9);
       display: flex;
       align-items: center;
       pointer-events: none;
@@ -150,15 +151,15 @@
     .eye-btn {
       position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
       background: none; border: none; cursor: pointer; padding: 4px;
-      color: rgba(255,255,255,0.55); display: flex; align-items: center;
+      color: rgba(255,255,255,0.88); display: flex; align-items: center;
       transition: color 0.2s;
     }
-    .eye-btn:hover { color: rgba(255,255,255,0.9); }
+    .eye-btn:hover { color: #fff; }
     .eye-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
     .back-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,0.95); font-size: 13px; font-weight: 600;
       text-decoration: none; margin-bottom: 20px;
       transition: color 0.2s;
     }
@@ -181,9 +182,10 @@
 
     .forgot-row a {
       font-size: 12px;
-      color: rgba(255,255,255,0.72);
+      color: rgba(255,255,255,0.95);
       text-decoration: none;
       font-style: italic;
+      font-weight: 600;
     }
     .forgot-row a:hover { color: #fff; text-decoration: underline; }
 
@@ -203,7 +205,8 @@
 
     .remember-row label {
       font-size: 13px;
-      color: rgba(255,255,255,0.85);
+      color: rgba(255,255,255,0.97);
+      font-weight: 600;
       cursor: pointer; user-select: none;
     }
 
@@ -258,7 +261,8 @@
     .register-link {
       text-align: center;
       font-size: 13px;
-      color: rgba(255,255,255,0.75);
+      color: rgba(255,255,255,0.97);
+      font-weight: 600;
     }
 
     .register-link a {
@@ -346,11 +350,11 @@
       bottom: 140px;
       left: 52px;
       z-index: 6;
-      color: rgba(255,255,255,0.7);
+      color: rgba(255,255,255,0.95);
       font-size: 12px;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      font-weight: 500;
+      font-weight: 700;
       pointer-events: none;
     }
 

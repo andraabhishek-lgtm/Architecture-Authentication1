@@ -39,16 +39,16 @@
       padding: 4px 10px;
       display: block;
     }
-    .brand-role { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; padding-left: 2px; }
+    .brand-role { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding-left: 2px; }
 
     .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
 
-    .nav-label { font-size: 11px; color: rgba(255,255,255,0.25); padding: 14px 14px 6px; letter-spacing: 1.2px; text-transform: uppercase; }
+    .nav-label { font-size: 11px; color: rgba(255,255,255,0.92); font-weight: 800; padding: 14px 14px 6px; letter-spacing: 1.5px; text-transform: uppercase; }
 
     .nav-item {
       display: flex; align-items: center; gap: 12px;
       padding: 11px 14px; border-radius: 10px;
-      color: rgba(255,255,255,0.6); font-size: 13.5px; font-weight: 500;
+      color: #ffffff; font-size: 13.5px; font-weight: 700;
       cursor: pointer; transition: all 0.2s; text-decoration: none;
       border: none; background: none; width: 100%; text-align: left;
     }
@@ -65,7 +65,7 @@
     .logout-btn {
       display: flex; align-items: center; gap: 10px;
       padding: 11px 14px; border-radius: 10px;
-      color: rgba(255,100,100,0.7); font-size: 13.5px;
+      color: rgba(255,100,100,0.95); font-size: 13.5px; font-weight: 700;
       cursor: pointer; border: none; background: none;
       width: 100%; transition: all 0.2s; font-family: inherit;
     }
@@ -82,7 +82,7 @@
     /* topbar */
     .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     .topbar h1 { font-size: 22px; font-weight: 800; color: #1a3050; }
-    .topbar p  { font-size: 13px; color: #4a6a8a; margin-top: 2px; }
+    .topbar p  { font-size: 13px; color: #1a3a5a; font-weight: 600; margin-top: 2px; }
     .topbar-right { display: flex; align-items: center; gap: 14px; }
 
     .user-email {
@@ -148,9 +148,9 @@
     .notif-icon.green { color: #6ee7b7; }
     .notif-icon.amber { color: #fcd34d; }
     .notif-icon.red   { color: #fca5a5; }
-    .notif-text { font-size: 12.5px; color: rgba(255,255,255,0.88); line-height: 1.45; font-weight: 500; }
+    .notif-text { font-size: 12.5px; color: rgba(255,255,255,0.97); line-height: 1.45; font-weight: 600; }
     .notif-text strong { color: #fff; }
-    .notif-time { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+    .notif-time { font-size: 11px; color: rgba(255,255,255,0.82); font-weight: 600; margin-top: 3px; }
 
     .profile-top {
       padding: 16px 18px; display: flex; align-items: center; gap: 12px;
@@ -164,17 +164,17 @@
       border: 2px solid rgba(255,255,255,0.3);
     }
     .profile-name  { font-size: 14px; font-weight: 700; color: #fff; }
-    .profile-email { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .profile-email { font-size: 12px; color: rgba(255,255,255,0.88); font-weight: 600; margin-top: 2px; }
     .profile-menu-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 11px 18px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82);
+      padding: 11px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.97);
       cursor: pointer; transition: background 0.15s; border: none; background: none;
       width: 100%; text-align: left; font-family: inherit;
     }
-    .profile-menu-item svg { width: 16px; height: 16px; color: rgba(110,231,183,0.9); flex-shrink: 0; }
+    .profile-menu-item svg { width: 16px; height: 16px; color: rgba(110,231,183,1); flex-shrink: 0; }
     .profile-menu-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .profile-menu-item.danger { color: rgba(255,160,160,0.9); }
-    .profile-menu-item.danger svg { color: rgba(255,160,160,0.9); }
+    .profile-menu-item.danger { color: rgba(255,160,160,1); }
+    .profile-menu-item.danger svg { color: rgba(255,160,160,1); }
     .profile-menu-item.danger:hover { background: rgba(255,80,80,0.12); color: #ffb3b3; }
     .profile-menu-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
 
@@ -189,7 +189,7 @@
       box-shadow: 0 4px 24px rgba(30,80,130,0.12);
     }
     .welcome-text h2 { font-size: 20px; font-weight: 800; color: #1a3050; margin-bottom: 6px; }
-    .welcome-text p  { font-size: 13px; color: #4a6a8a; line-height: 1.6; }
+    .welcome-text p  { font-size: 13px; color: #1a3a5a; font-weight: 600; line-height: 1.6; }
     .welcome-action {
       padding: 11px 24px;
       background: linear-gradient(135deg, #4a90c0, #2a6090);
@@ -221,9 +221,9 @@
     .stat-icon.blue   { background: rgba(59,130,246,0.28); color: #1d4ed8; }
     .stat-icon.green  { background: rgba(16,185,129,0.28); color: #047857; }
     .stat-icon.amber  { background: rgba(245,158,11,0.28); color: #b45309; }
-    .stat-value { font-size: 26px; font-weight: 800; color: #1a3050; }
-    .stat-label { font-size: 12px; color: #4a6a8a; margin-top: 4px; font-weight: 500; }
-    .stat-sub   { font-size: 11px; color: #1a3a55; margin-top: 8px; }
+    .stat-value { font-size: 26px; font-weight: 900; color: #071525; }
+    .stat-label { font-size: 12px; color: #0a1f35; margin-top: 4px; font-weight: 700; }
+    .stat-sub   { font-size: 11px; color: #071525; font-weight: 700; margin-top: 8px; }
 
     /* chart row */
     .chart-grid {
@@ -248,7 +248,7 @@
       overflow: hidden;
     }
     .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .panel-title  { font-size: 15px; font-weight: 700; color: #1a3050; }
+    .panel-title  { font-size: 15px; font-weight: 800; color: #071525; }
     .panel-action { font-size: 12px; color: #3a7aaa; font-weight: 600; cursor: pointer; text-decoration: none; }
 
     /* project items */
@@ -270,13 +270,13 @@
     .proj-icon.amber  { background: rgba(245,158,11,0.28); color: #b45309; }
 
     .proj-info { flex: 1; }
-    .proj-name  { font-size: 13px; font-weight: 600; color: #1a3050; }
-    .proj-desc  { font-size: 11px; color: #1a3a55; margin-top: 2px; }
+    .proj-name  { font-size: 13px; font-weight: 700; color: #071525; }
+    .proj-desc  { font-size: 11px; color: #0f2540; font-weight: 600; margin-top: 2px; }
 
     .proj-progress { margin-top: 6px; }
     .progress-bar  { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 2px; }
-    .progress-text { font-size: 11px; color: #1a3a55; margin-top: 3px; }
+    .progress-text { font-size: 11px; color: #071525; font-weight: 700; margin-top: 3px; }
 
     .badge {
       display: inline-flex; align-items: center;
@@ -294,9 +294,9 @@
       padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);
     }
     .inv-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .inv-id   { font-size: 13px; font-weight: 600; color: #1a3050; }
-    .inv-date { font-size: 11px; color: #1a3a55; margin-top: 2px; }
-    .inv-amt  { font-size: 14px; font-weight: 700; color: #1a3050; margin-right: 12px; }
+    .inv-id   { font-size: 13px; font-weight: 700; color: #071525; }
+    .inv-date { font-size: 11px; color: #0a1f35; font-weight: 700; margin-top: 2px; }
+    .inv-amt  { font-size: 14px; font-weight: 800; color: #071525; margin-right: 12px; }
     .inv-right { display: flex; align-items: center; gap: 10px; }
 
     /* ticket rows */
@@ -305,9 +305,9 @@
       padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);
     }
     .ticket-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .ticket-num  { font-size: 12px; font-weight: 700; color: #3a7aaa; }
-    .ticket-subj { font-size: 13px; font-weight: 500; color: #1a3050; }
-    .ticket-date { font-size: 11px; color: #1a3a55; margin-top: 2px; }
+    .ticket-num  { font-size: 12px; font-weight: 800; color: #1a5a9a; }
+    .ticket-subj { font-size: 13px; font-weight: 700; color: #071525; }
+    .ticket-date { font-size: 11px; color: #0a1f35; font-weight: 700; margin-top: 2px; }
 
     /* ── HAMBURGER ── */
     .hamburger {
