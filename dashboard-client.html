@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Dashboard | Stackly</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh; overflow: hidden; color: #1a3050;
+    }
+
+    .bg-scene { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+
+    .layout { position: relative; z-index: 10; display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: rgba(10,35,60,0.72);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.1);
+      display: flex; flex-direction: column;
+      padding: 32px 0 24px;
+    }
+
+    .sidebar-brand {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+      padding: 0 24px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand-logo {
+      height: 32px; width: auto;
+      background: rgba(255,255,255,0.93);
+      border-radius: 8px;
+      padding: 4px 10px;
+      display: block;
+    }
+    .brand-role { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; padding-left: 2px; }
+
+    .sidebar-nav { flex: 1; padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+
+    .nav-label { font-size: 11px; color: rgba(255,255,255,0.25); padding: 14px 14px 6px; letter-spacing: 1.2px; text-transform: uppercase; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 10px;
+      color: rgba(255,255,255,0.6); font-size: 13.5px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; text-decoration: none;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .nav-item:hover { background: rgba(255,255,255,0.09); color: #fff; transform: translateX(3px); }
+    .nav-item:active { transform: scale(0.97); }
+    .nav-item.active {
+      background: rgba(74,144,192,0.28); color: #fff;
+      border: 1px solid rgba(74,144,192,0.35);
+      box-shadow: inset 3px 0 0 #4a90c0;
+    }
+
+    .sidebar-footer { padding: 16px 12px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px; border-radius: 10px;
+      color: rgba(255,100,100,0.7); font-size: 13.5px;
+      cursor: pointer; border: none; background: none;
+      width: 100%; transition: all 0.2s; font-family: inherit;
+    }
+    .logout-btn:hover { background: rgba(255,80,80,0.1); color: #ff6b6b; }
+    .logout-btn svg { width: 18px; height: 18px; }
+
+    /* ── MAIN ── */
+    .main { flex: 1; overflow-y: auto; padding: 32px 32px 120px; }
+
+    .main::-webkit-scrollbar { width: 5px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: rgba(74,144,192,0.3); border-radius: 4px; }
+
+    /* topbar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .topbar h1 { font-size: 22px; font-weight: 800; color: #1a3050; }
+    .topbar p  { font-size: 13px; color: #4a6a8a; margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+
+    .user-email {
+      font-size: 13px; font-weight: 600; color: #047857;
+      background: rgba(5,150,105,0.1);
+      border: 1px solid rgba(5,150,105,0.25);
+      border-radius: 20px; padding: 5px 14px;
+      max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #059669, #047857);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 15px;
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+    .notify-btn {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.35); border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; backdrop-filter: blur(10px);
+    }
+    .notify-btn svg { width: 18px; height: 18px; color: #1a3050; }
+    .notify-dot { position: absolute; top: 7px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; border: 1.5px solid #fff; }
+
+    /* ── DROPDOWNS ── */
+    .drop-wrap { position: relative; }
+    .notify-btn { cursor: pointer; border: none; }
+    .avatar { cursor: pointer; }
+
+    .dropdown {
+      display: none; position: absolute; top: calc(100% + 10px); right: 0;
+      background: rgba(10,35,65,0.55);
+      backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px);
+      border: 1.5px solid rgba(255,255,255,0.22); border-radius: 18px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.12) inset;
+      z-index: 300; min-width: 285px; overflow: hidden;
+    }
+    .dropdown.open { display: block; }
+
+    .notif-header {
+      padding: 14px 18px 10px; font-size: 13px; font-weight: 700;
+      color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .notif-clear { font-size: 11px; color: rgba(110,231,183,0.9); cursor: pointer; font-weight: 600; }
+    .notif-clear:hover { color: #fff; text-decoration: underline; }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 18px; border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: background 0.15s; cursor: pointer;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: rgba(255,255,255,0.08); }
+    .notif-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+    }
+    .notif-icon svg { width: 16px; height: 16px; }
+    .notif-icon.blue  { color: #7ec8ff; }
+    .notif-icon.green { color: #6ee7b7; }
+    .notif-icon.amber { color: #fcd34d; }
+    .notif-icon.red   { color: #fca5a5; }
+    .notif-text { font-size: 12.5px; color: rgba(255,255,255,0.88); line-height: 1.45; font-weight: 500; }
+    .notif-text strong { color: #fff; }
+    .notif-time { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
+
+    .profile-top {
+      padding: 16px 18px; display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .profile-avatar-lg {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg,#059669,#047857);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 17px; flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    .profile-name  { font-size: 14px; font-weight: 700; color: #fff; }
+    .profile-email { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .profile-menu-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 18px; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.82);
+      cursor: pointer; transition: background 0.15s; border: none; background: none;
+      width: 100%; text-align: left; font-family: inherit;
+    }
+    .profile-menu-item svg { width: 16px; height: 16px; color: rgba(110,231,183,0.9); flex-shrink: 0; }
+    .profile-menu-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .profile-menu-item.danger { color: rgba(255,160,160,0.9); }
+    .profile-menu-item.danger svg { color: rgba(255,160,160,0.9); }
+    .profile-menu-item.danger:hover { background: rgba(255,80,80,0.12); color: #ffb3b3; }
+    .profile-menu-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0; }
+
+    /* welcome banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, rgba(74,144,192,0.35), rgba(42,96,144,0.3));
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 20px; padding: 28px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 24px rgba(30,80,130,0.12);
+    }
+    .welcome-text h2 { font-size: 20px; font-weight: 800; color: #1a3050; margin-bottom: 6px; }
+    .welcome-text p  { font-size: 13px; color: #4a6a8a; line-height: 1.6; }
+    .welcome-action {
+      padding: 11px 24px;
+      background: linear-gradient(135deg, #4a90c0, #2a6090);
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; font-family: inherit;
+      box-shadow: 0 4px 16px rgba(42,90,140,0.35);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .welcome-action:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* stat cards */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-bottom: 22px;
+    }
+    .stat-card {
+      background: rgba(200,225,245,0.22);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 18px; padding: 20px;
+      box-shadow: 0 4px 24px rgba(30,80,130,0.1);
+    }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+    }
+    .stat-icon svg { width: 19px; height: 19px; }
+    .stat-icon.blue   { background: rgba(59,130,246,0.15); color: #2563eb; }
+    .stat-icon.green  { background: rgba(16,185,129,0.15); color: #059669; }
+    .stat-icon.amber  { background: rgba(245,158,11,0.15); color: #d97706; }
+    .stat-value { font-size: 26px; font-weight: 800; color: #1a3050; }
+    .stat-label { font-size: 12px; color: #4a6a8a; margin-top: 4px; font-weight: 500; }
+    .stat-sub   { font-size: 11px; color: #6a90aa; margin-top: 8px; }
+
+    /* chart row */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .chart-wrap { position: relative; height: 190px; }
+    .chart-donut { height: 150px; width: 150px; }
+
+    /* content grid */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    /* panel */
+    .panel {
+      background: rgba(200,225,245,0.22);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 18px; padding: 20px 22px;
+      box-shadow: 0 4px 24px rgba(30,80,130,0.1);
+      overflow: hidden;
+    }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .panel-title  { font-size: 15px; font-weight: 700; color: #1a3050; }
+    .panel-action { font-size: 12px; color: #3a7aaa; font-weight: 600; cursor: pointer; text-decoration: none; }
+
+    /* project items */
+    .project-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .project-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .proj-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .proj-icon svg { width: 17px; height: 17px; }
+    .proj-icon.blue   { background: rgba(59,130,246,0.15); color: #2563eb; }
+    .proj-icon.green  { background: rgba(16,185,129,0.15); color: #059669; }
+    .proj-icon.purple { background: rgba(139,92,246,0.15); color: #7c3aed; }
+    .proj-icon.amber  { background: rgba(245,158,11,0.15); color: #d97706; }
+
+    .proj-info { flex: 1; }
+    .proj-name  { font-size: 13px; font-weight: 600; color: #1a3050; }
+    .proj-desc  { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+
+    .proj-progress { margin-top: 6px; }
+    .progress-bar  { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; }
+    .progress-text { font-size: 11px; color: #6a90aa; margin-top: 3px; }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .badge.paid     { background: rgba(16,185,129,0.15); color: #059669; }
+    .badge.due      { background: rgba(245,158,11,0.15);  color: #d97706; }
+    .badge.overdue  { background: rgba(239,68,68,0.15);   color: #dc2626; }
+    .badge.open     { background: rgba(59,130,246,0.15);  color: #2563eb; }
+    .badge.resolved { background: rgba(107,114,128,0.15); color: #6b7280; }
+
+    /* invoice rows */
+    .inv-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .inv-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .inv-id   { font-size: 13px; font-weight: 600; color: #1a3050; }
+    .inv-date { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+    .inv-amt  { font-size: 14px; font-weight: 700; color: #1a3050; margin-right: 12px; }
+    .inv-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ticket rows */
+    .ticket-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    .ticket-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .ticket-num  { font-size: 12px; font-weight: 700; color: #3a7aaa; }
+    .ticket-subj { font-size: 13px; font-weight: 500; color: #1a3050; }
+    .ticket-date { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      position: fixed; top: 14px; left: 14px; z-index: 500;
+      background: rgba(10,35,60,0.88); border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 10px; width: 42px; height: 42px;
+      align-items: center; justify-content: center;
+      cursor: pointer; backdrop-filter: blur(12px); color: #fff; font-size: 20px;
+      transition: background 0.2s;
+    }
+    .hamburger:hover { background: rgba(74,144,192,0.5); }
+
+    .sidebar-overlay {
+      display: none; position: fixed; top: 0; bottom: 0; right: 0;
+      background: rgba(0,0,0,0.52); z-index: 28;
+    }
+    .sidebar-overlay.open { display: block; left: 240px; }
+    @media (max-width: 380px) { .sidebar-overlay.open { left: 220px; } }
+
+    /* ── SIDEBAR COLLAPSE (desktop) ── */
+    .sidebar {
+      transition: width 0.28s cubic-bezier(0.4,0,0.2,1),
+                  padding 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sidebar.collapsed { width: 0; padding: 0; overflow: hidden; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hamburger { display: flex; }
+      body { overflow: hidden !important; }
+      .layout { height: 100vh; overflow: hidden; }
+      .main {
+        overflow-y: auto; height: 100vh;
+        padding: 76px 16px 130px;
+      }
+      .sidebar {
+        position: fixed !important; left: -260px; top: 0; bottom: 0;
+        height: 100vh; z-index: 200 !important; width: 240px !important;
+        padding-top: 70px !important;
+        transition: left 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+        overflow-y: auto;
+      }
+      .sidebar.open { left: 0 !important; }
+      .sidebar.collapsed { width: 240px !important; }
+      .nav-item { padding: 14px 14px; font-size: 14px; }
+      .logout-btn { padding: 14px 14px; }
+      .topbar {
+        flex-wrap: nowrap; gap: 8px; margin-bottom: 18px;
+        padding-left: 58px; align-items: center;
+      }
+      .topbar-left { flex: 1; min-width: 0; }
+      .topbar h1 { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .topbar p { display: none; }
+      .topbar-right { gap: 8px; flex-shrink: 0; }
+      .user-email { max-width: 120px; font-size: 12px; padding: 4px 10px; }
+      .welcome-banner { flex-direction: column; gap: 16px; text-align: center; padding: 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .chart-grid { grid-template-columns: 1fr !important; }
+      .content-grid { grid-template-columns: 1fr !important; }
+      .chart-wrap { height: 180px !important; width: 100% !important; }
+      .panel[style*="align-items:center"] { flex-direction: row !important; flex-wrap: wrap !important; justify-content: center !important; gap: 12px; }
+      .scroll-strip { left: 0 !important; }
+    }
+    @media (max-width: 600px) {
+      .main { padding: 70px 14px 120px; }
+      .welcome-banner { padding: 16px; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr !important; }
+      .main { padding: 66px 10px 115px; }
+      .topbar h1 { font-size: 15px; }
+      .user-email { max-width: 100px; font-size: 11px; padding: 3px 8px; }
+      .chart-wrap { height: 160px !important; }
+      .dropdown {
+        position: fixed !important;
+        top: 64px !important; left: 8px !important; right: 8px !important;
+        min-width: unset !important; width: auto !important;
+      }
+      .notify-btn, .avatar { width: 34px; height: 34px; }
+    }
+    @media (max-width: 380px) {
+      .main { padding: 62px 8px 110px; }
+      .topbar h1 { font-size: 13px; }
+      .user-email { max-width: 85px; font-size: 10px; padding: 2px 6px; }
+      .topbar-right { gap: 6px; }
+      .sidebar { width: 220px !important; }
+    }
+
+    /* scroll strip */
+    .scroll-strip {
+      position: fixed; bottom: 0; left: 240px; right: 0;
+      height: 105px; z-index: 5; overflow: hidden; padding: 8px 0;
+    }
+    .scroll-strip::before, .scroll-strip::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 100px; z-index: 2; pointer-events: none;
+    }
+    .scroll-strip::before { left: 0;  background: linear-gradient(to right, rgba(100,165,200,0.5), transparent); }
+    .scroll-strip::after  { right: 0; background: linear-gradient(to left,  rgba(100,165,200,0.5), transparent); }
+    .scroll-track { display: flex; gap: 10px; width: max-content; animation: scrollLeft 35s linear infinite; }
+    .scroll-track:hover { animation-play-state: paused; }
+    .scroll-track img {
+      height: 82px; width: 140px; object-fit: cover;
+      border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.3);
+      opacity: 0.72; flex-shrink: 0; transition: opacity 0.2s, transform 0.2s;
+    }
+    .scroll-track img:hover { opacity: 1; transform: scale(1.05); }
+    @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes secIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section { display: none; }
+    .section.active {
+      display: block;
+      animation: secIn 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+  </style>
+</head>
+<body>
+
+<!-- SVG MOUNTAIN BACKGROUND -->
+<svg class="bg-scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#dff0fa"/>
+      <stop offset="25%"  stop-color="#c8e4f5"/>
+      <stop offset="55%"  stop-color="#a6cfe8"/>
+      <stop offset="100%" stop-color="#7ab8d8"/>
+    </linearGradient>
+    <radialGradient id="sunG" cx="50%" cy="26%" r="32%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,1)"/>
+      <stop offset="40%"  stop-color="rgba(220,240,255,0.5)"/>
+      <stop offset="100%" stop-color="rgba(180,225,255,0)"/>
+    </radialGradient>
+    <linearGradient id="m1G" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9acbdf"/><stop offset="100%" stop-color="#78b0cc"/></linearGradient>
+    <linearGradient id="m2G" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5592b5"/><stop offset="100%" stop-color="#3f7da0"/></linearGradient>
+    <linearGradient id="m3G" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d6585"/><stop offset="100%" stop-color="#1c4f6a"/></linearGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#skyG)"/>
+  <ellipse cx="720" cy="210" rx="420" ry="300" fill="url(#sunG)"/>
+  <g opacity="0.5"><ellipse cx="240" cy="175" rx="95" ry="26" fill="rgba(255,255,255,0.8)"/><ellipse cx="295" cy="162" rx="70" ry="22" fill="rgba(255,255,255,0.85)"/></g>
+  <g opacity="0.45"><ellipse cx="1180" cy="145" rx="105" ry="28" fill="rgba(255,255,255,0.75)"/><ellipse cx="1250" cy="133" rx="75" ry="22" fill="rgba(255,255,255,0.8)"/></g>
+  <path d="M-10,900 L-10,530 L70,460 L150,510 L240,385 L330,455 L420,320 L510,400 L600,275 L680,350 L760,238 L840,315 L920,260 L1000,338 L1080,285 L1160,358 L1240,305 L1320,372 L1450,355 L1450,900 Z" fill="url(#m1G)"/>
+  <path d="M-10,900 L-10,630 L90,558 L178,612 L268,498 L358,568 L448,448 L538,528 L628,462 L718,396 L808,470 L898,412 L988,502 L1078,444 L1168,524 L1258,464 L1348,534 L1450,510 L1450,900 Z" fill="url(#m2G)"/>
+  <path d="M-10,900 L-10,732 L88,668 L176,728 L268,638 L358,708 L452,596 L548,672 L644,628 L740,688 L836,638 L932,702 L1028,648 L1124,714 L1220,662 L1316,724 L1450,702 L1450,900 Z" fill="url(#m3G)"/>
+</svg>
+
+<button class="hamburger" id="hamburger" aria-label="Open menu">&#9776;</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="login.html"><img src="assets/stackly-logo (1).webp" alt="Stackly" class="brand-logo" /></a>
+      <div class="brand-role">Client Portal</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-label">My Space</span>
+      <button class="nav-item active" data-sec="overview" onclick="showSec('overview')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" data-sec="myprojects" onclick="showSec('myprojects')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        My Projects
+      </button>
+      <button class="nav-item" data-sec="invoices" onclick="showSec('invoices')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Invoices
+      </button>
+      <span class="nav-label">Support</span>
+      <button class="nav-item" data-sec="tickets" onclick="showSec('tickets')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Tickets
+      </button>
+      <button class="nav-item" data-sec="profile" onclick="showSec('profile')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        My Profile
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="window.location.href='login.html'">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Welcome, Arun 👋</h1>
+        <p>Here's an overview of your projects and account.</p>
+      </div>
+      <div class="topbar-right">
+        <span class="user-email" id="userEmail"></span>
+
+        <!-- Bell -->
+        <div class="drop-wrap">
+          <div class="notify-btn" id="notifBtn">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <div class="notify-dot" id="notifDot"></div>
+          </div>
+          <div class="dropdown" id="notifDropdown">
+            <div class="notif-header">
+              Notifications
+              <span class="notif-clear" onclick="clearNotifs()">Mark all read</span>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon blue"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+              <div><div class="notif-text">Your <strong>Smart Office Design</strong> project is 72% complete</div><div class="notif-time">2 hours ago</div></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon amber"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div><div class="notif-text">Invoice <strong>#INV-2051</strong> due on 20 May — ₹18,500</div><div class="notif-time">1 day ago</div></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon green"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg></div>
+              <div><div class="notif-text">Ticket <strong>#TK-185</strong> has been resolved</div><div class="notif-time">2 days ago</div></div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-icon red"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+              <div><div class="notif-text">Invoice <strong>#INV-2039</strong> is overdue — ₹12,000</div><div class="notif-time">3 days ago</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar -->
+        <div class="drop-wrap">
+          <div class="avatar" id="avatarBtn">A</div>
+          <div class="dropdown" id="profileDropdown">
+            <div class="profile-top">
+              <div class="profile-avatar-lg" id="profileAvatarLg">A</div>
+              <div>
+                <div class="profile-name" id="profileNameLabel">User</div>
+                <div class="profile-email" id="profileEmailLabel"></div>
+              </div>
+            </div>
+            <button class="profile-menu-item" onclick="showSec('profile');closeDropdowns()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+              My Profile
+            </button>
+            <button class="profile-menu-item" onclick="showSec('tickets');closeDropdowns()">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Support Tickets
+            </button>
+            <div class="profile-menu-divider"></div>
+            <button class="profile-menu-item danger" onclick="window.location.href='login.html'">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="sec-overview" class="section active">
+    <!-- WELCOME BANNER -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Your Smart Office Design project is 72% complete</h2>
+        <p>Next milestone: Interior planning review on 18 May 2026. Stay on track!</p>
+      </div>
+      <button class="welcome-action" onclick="window.location.href='404.html'">View Project →</button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">Active Projects</div>
+        <div class="stat-sub">1 completing this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-value">₹18,500</div>
+        <div class="stat-label">Amount Due</div>
+        <div class="stat-sub">Due by 20 May 2026</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="stat-value">2</div>
+        <div class="stat-label">Open Tickets</div>
+        <div class="stat-sub">Avg. response: 4 hrs</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="chart-grid">
+      <!-- Monthly Spending Bar -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Monthly Spending</span>
+          <span style="font-size:12px;color:#6a90aa;">Last 6 months</span>
+        </div>
+        <div class="chart-wrap"><canvas id="spendChart"></canvas></div>
+      </div>
+
+      <!-- Project Progress Donut -->
+      <div class="panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="panel-header" style="width:100%">
+          <span class="panel-title">Project Progress</span>
+        </div>
+        <div class="chart-wrap chart-donut">
+          <canvas id="progressChart"></canvas>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;justify-content:center">
+          <span style="font-size:11px;color:#2563eb;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#2563eb;display:inline-block"></span>Smart Office</span>
+          <span style="font-size:11px;color:#10b981;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Villa Ph.2</span>
+          <span style="font-size:11px;color:#8b5cf6;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#8b5cf6;display:inline-block"></span>Interior</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-grid">
+
+      <!-- Projects -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">My Projects</span>
+          <a href="404.html" class="panel-action">View all →</a>
+        </div>
+        <div>
+          <div class="project-item">
+            <div class="proj-icon blue">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <div class="proj-info" style="flex:1">
+              <div class="proj-name">Smart Office Design</div>
+              <div class="proj-progress" style="margin-top:6px">
+                <div class="progress-bar"><div class="progress-fill" style="width:72%;background:linear-gradient(90deg,#3b82f6,#2563eb)"></div></div>
+                <div class="progress-text">72% complete</div>
+              </div>
+            </div>
+          </div>
+          <div class="project-item">
+            <div class="proj-icon green">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            </div>
+            <div class="proj-info" style="flex:1">
+              <div class="proj-name">Residential Villa — Phase 2</div>
+              <div class="proj-progress" style="margin-top:6px">
+                <div class="progress-bar"><div class="progress-fill" style="width:38%;background:linear-gradient(90deg,#10b981,#059669)"></div></div>
+                <div class="progress-text">38% complete</div>
+              </div>
+            </div>
+          </div>
+          <div class="project-item">
+            <div class="proj-icon purple">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg>
+            </div>
+            <div class="proj-info" style="flex:1">
+              <div class="proj-name">Interior Planning — Bengaluru</div>
+              <div class="proj-progress" style="margin-top:6px">
+                <div class="progress-bar"><div class="progress-fill" style="width:15%;background:linear-gradient(90deg,#8b5cf6,#7c3aed)"></div></div>
+                <div class="progress-text">15% complete — Just started</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+
+        <!-- Invoices -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Recent Invoices</span>
+            <a href="404.html" class="panel-action">View all →</a>
+          </div>
+          <div>
+            <div class="inv-row">
+              <div><div class="inv-id">#INV-2048</div><div class="inv-date">Issued: 01 May 2026</div></div>
+              <div class="inv-right"><span class="inv-amt">₹45,000</span><span class="badge paid">Paid</span></div>
+            </div>
+            <div class="inv-row">
+              <div><div class="inv-id">#INV-2051</div><div class="inv-date">Due: 20 May 2026</div></div>
+              <div class="inv-right"><span class="inv-amt">₹18,500</span><span class="badge due">Due</span></div>
+            </div>
+            <div class="inv-row">
+              <div><div class="inv-id">#INV-2039</div><div class="inv-date">Due: 28 Apr 2026</div></div>
+              <div class="inv-right"><span class="inv-amt">₹12,000</span><span class="badge overdue">Overdue</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support Tickets -->
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Support Tickets</span>
+            <a href="404.html" class="panel-action">New ticket +</a>
+          </div>
+          <div>
+            <div class="ticket-row">
+              <div style="flex:1">
+                <div class="ticket-num">#TK-209</div>
+                <div class="ticket-subj">Revision request — floor plan</div>
+                <div class="ticket-date">Opened: 11 May 2026</div>
+              </div>
+              <span class="badge open">Open</span>
+            </div>
+            <div class="ticket-row">
+              <div style="flex:1">
+                <div class="ticket-num">#TK-197</div>
+                <div class="ticket-subj">Material sample delivery delay</div>
+                <div class="ticket-date">Opened: 04 May 2026</div>
+              </div>
+              <span class="badge open">Open</span>
+            </div>
+            <div class="ticket-row">
+              <div style="flex:1">
+                <div class="ticket-num">#TK-185</div>
+                <div class="ticket-subj">Invoice discrepancy — INV-2039</div>
+                <div class="ticket-date">Opened: 28 Apr 2026</div>
+              </div>
+              <span class="badge resolved">Resolved</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </div><!-- end sec-overview -->
+
+    <div id="sec-myprojects" class="section">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">My Projects</span></div>
+        <div>
+          <div class="project-item"><div class="proj-icon blue"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><div class="proj-info" style="flex:1"><div class="proj-name">Smart Office Design</div><div class="proj-progress" style="margin-top:6px"><div class="progress-bar"><div class="progress-fill" style="width:72%;background:linear-gradient(90deg,#3b82f6,#2563eb)"></div></div><div class="progress-text">72% complete</div></div></div></div>
+          <div class="project-item"><div class="proj-icon green"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><div class="proj-info" style="flex:1"><div class="proj-name">Residential Villa — Phase 2</div><div class="proj-progress" style="margin-top:6px"><div class="progress-bar"><div class="progress-fill" style="width:38%;background:linear-gradient(90deg,#10b981,#059669)"></div></div><div class="progress-text">38% complete</div></div></div></div>
+          <div class="project-item"><div class="proj-icon purple"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg></div><div class="proj-info" style="flex:1"><div class="proj-name">Interior Planning — Bengaluru</div><div class="proj-progress" style="margin-top:6px"><div class="progress-bar"><div class="progress-fill" style="width:15%;background:linear-gradient(90deg,#8b5cf6,#7c3aed)"></div></div><div class="progress-text">15% complete</div></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-invoices" class="section">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">My Invoices</span></div>
+        <div>
+          <div class="inv-row"><div><div class="inv-id">#INV-2048</div><div class="inv-date">Issued: 01 May 2026</div></div><div class="inv-right"><span class="inv-amt">₹45,000</span><span class="badge paid">Paid</span></div></div>
+          <div class="inv-row"><div><div class="inv-id">#INV-2051</div><div class="inv-date">Due: 20 May 2026</div></div><div class="inv-right"><span class="inv-amt">₹18,500</span><span class="badge due">Due</span></div></div>
+          <div class="inv-row"><div><div class="inv-id">#INV-2039</div><div class="inv-date">Due: 28 Apr 2026</div></div><div class="inv-right"><span class="inv-amt">₹12,000</span><span class="badge overdue">Overdue</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-tickets" class="section">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Support Tickets</span></div>
+        <div>
+          <div class="ticket-row"><div style="flex:1"><div class="ticket-num">#TK-209</div><div class="ticket-subj">Revision request — floor plan</div><div class="ticket-date">Opened: 11 May 2026</div></div><span class="badge open">Open</span></div>
+          <div class="ticket-row"><div style="flex:1"><div class="ticket-num">#TK-197</div><div class="ticket-subj">Material sample delivery delay</div><div class="ticket-date">Opened: 04 May 2026</div></div><span class="badge open">Open</span></div>
+          <div class="ticket-row"><div style="flex:1"><div class="ticket-num">#TK-185</div><div class="ticket-subj">Invoice discrepancy — INV-2039</div><div class="ticket-date">Opened: 28 Apr 2026</div></div><span class="badge resolved">Resolved</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-profile" class="section">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">My Profile</span></div>
+        <div style="display:flex;flex-direction:column;gap:18px;max-width:480px">
+          <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:13px;font-weight:600;color:#1a3050">Full Name</label><input type="text" id="profileName" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(5,150,105,0.3);font-size:14px;color:#1a3050;background:rgba(255,255,255,0.7)"/></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:13px;font-weight:600;color:#1a3050">Email</label><input type="email" id="profileEmail" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(5,150,105,0.3);font-size:14px;color:#1a3050;background:rgba(255,255,255,0.7)"/></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:13px;font-weight:600;color:#1a3050">Phone</label><input type="tel" placeholder="+91 XXXXX XXXXX" style="padding:10px 14px;border-radius:10px;border:1px solid rgba(5,150,105,0.3);font-size:14px;color:#1a3050;background:rgba(255,255,255,0.7)"/></div>
+          <button style="align-self:flex-start;padding:10px 28px;border-radius:10px;background:linear-gradient(135deg,#059669,#047857);color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer">Update Profile</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- SCROLL STRIP -->
+<div class="scroll-strip">
+  <div class="scroll-track">
+    <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+    <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+  </div>
+</div>
+
+<script>
+  /* ── Credentials ── */
+  (function() {
+    const email = localStorage.getItem('rb_email') || '';
+    const name = email
+      ? email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      : 'there';
+    const avatarEl   = document.querySelector('.avatar');
+    const titleEl    = document.querySelector('.topbar h1');
+    const bannerEl   = document.querySelector('.welcome-text h2');
+    const emailLabel = document.getElementById('userEmail');
+    if (avatarEl)   avatarEl.textContent   = name[0].toUpperCase();
+    if (titleEl)    titleEl.textContent    = `Welcome, ${name} 👋`;
+    if (emailLabel) emailLabel.textContent = email || 'Guest';
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    if (profileName) profileName.value = name;
+    if (profileEmail) profileEmail.value = email;
+    const palg = document.getElementById('profileAvatarLg');
+    const pname = document.getElementById('profileNameLabel');
+    const pemail = document.getElementById('profileEmailLabel');
+    if (palg)   palg.textContent   = name[0].toUpperCase();
+    if (pname)  pname.textContent  = name;
+    if (pemail) pemail.textContent = email || 'Guest';
+  })();
+
+  /* ── Dropdowns ── */
+  function closeDropdowns() {
+    document.getElementById('notifDropdown').classList.remove('open');
+    document.getElementById('profileDropdown').classList.remove('open');
+  }
+  document.getElementById('notifBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('notifDropdown');
+    const wasOpen = dd.classList.contains('open');
+    closeDropdowns();
+    if (!wasOpen) dd.classList.add('open');
+  });
+  document.getElementById('avatarBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('profileDropdown');
+    const wasOpen = dd.classList.contains('open');
+    closeDropdowns();
+    if (!wasOpen) dd.classList.add('open');
+  });
+  document.addEventListener('click', closeDropdowns);
+  function clearNotifs() {
+    document.getElementById('notifDot').style.display = 'none';
+    document.querySelectorAll('.notif-item').forEach(n => n.style.opacity = '0.45');
+  }
+
+  /* ── Sidebar Toggle ── */
+  const ham     = document.getElementById('hamburger');
+  const overlay = document.getElementById('sidebarOverlay');
+  const sidebar = document.querySelector('.sidebar');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    ham.innerHTML = '&#10005;';
+    ham.setAttribute('aria-label', 'Close menu');
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    ham.innerHTML = '&#9776;';
+    ham.setAttribute('aria-label', 'Open menu');
+  }
+
+  ham.addEventListener('click', function(e) {
+    e.stopPropagation();
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+
+  overlay.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeSidebar();
+  });
+
+  /* ── Section Navigation ── */
+  function showSec(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('sec-' + name);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const btn = document.querySelector(`.nav-item[data-sec="${name}"]`);
+    if (btn) btn.classList.add('active');
+    closeSidebar();
+    const main = document.querySelector('.main');
+    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ── Monthly Spending Bar Chart ── */
+  const sCtx = document.getElementById('spendChart').getContext('2d');
+  const barGrad = sCtx.createLinearGradient(0, 0, 0, 190);
+  barGrad.addColorStop(0, 'rgba(74,144,192,0.85)');
+  barGrad.addColorStop(1, 'rgba(42,96,144,0.4)');
+
+  new Chart(sCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Dec','Jan','Feb','Mar','Apr','May'],
+      datasets: [{
+        label: 'Spent (₹)',
+        data: [28000, 45000, 12000, 60000, 38000, 75500],
+        backgroundColor: barGrad,
+        borderColor: 'rgba(74,144,192,0.9)',
+        borderWidth: 1.5,
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          titleColor: '#1a3050', bodyColor: '#4a6a8a',
+          borderColor: 'rgba(74,144,192,0.3)', borderWidth: 1,
+          callbacks: { label: ctx => ' ₹' + ctx.raw.toLocaleString('en-IN') }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#6a90aa', font: { size: 11 } } },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.2)' },
+          ticks: { color: '#6a90aa', font: { size: 11 }, callback: v => '₹' + (v/1000) + 'K' }
+        }
+      }
+    }
+  });
+
+  /* ── Project Progress Donut ── */
+  const pCtx = document.getElementById('progressChart').getContext('2d');
+  new Chart(pCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Smart Office (72%)', 'Villa Ph.2 (38%)', 'Interior (15%)', 'Remaining'],
+      datasets: [{
+        data: [72, 38, 15, 175],
+        backgroundColor: ['#2563eb','#10b981','#8b5cf6','rgba(200,225,245,0.3)'],
+        borderColor: 'rgba(255,255,255,0.6)',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          titleColor: '#1a3050', bodyColor: '#4a6a8a',
+          borderColor: 'rgba(74,144,192,0.3)', borderWidth: 1,
+          filter: item => item.dataIndex < 3
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>

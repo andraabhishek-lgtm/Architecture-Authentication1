@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login | Stackly</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── SWIPER BACKGROUND ── */
+    .bg-swiper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-swiper .swiper,
+    .bg-swiper .swiper-wrapper,
+    .bg-swiper .swiper-slide {
+      width: 100%;
+      height: 100%;
+    }
+
+    .bg-swiper .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1);
+      transition: transform 7s ease;
+    }
+
+    .bg-swiper .swiper-slide-active img {
+      transform: scale(1.07);
+    }
+
+    /* Dark overlay */
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(8, 20, 50, 0.62) 0%,
+        rgba(15, 40, 80, 0.45) 50%,
+        rgba(8, 20, 50, 0.62) 100%
+      );
+    }
+
+    /* ── SITE LOGO ── */
+    .site-logo {
+      position: fixed;
+      top: 18px; left: 24px;
+      z-index: 25;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .site-logo { cursor: pointer; text-decoration: none; }
+    .site-logo img { height: 30px; width: auto; display: block; }
+
+    /* ── CENTERED PAGE ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── GLASS CARD ── */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 28px;
+      padding: 48px 52px 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow:
+        0 8px 60px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255,255,255,0.35) inset;
+    }
+
+    .glass-card h2 {
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 36px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    }
+
+    /* ── FORM FIELDS ── */
+    .field {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 13px 46px 13px 18px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 12px;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.5); }
+
+    .field input:focus {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255,255,255,0.6);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+    }
+
+    .field input.err { border-color: rgba(255, 90, 90, 0.7); }
+
+    .field-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.55);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .field-icon svg { width: 18px; height: 18px; }
+
+    .eye-btn {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: rgba(255,255,255,0.55); display: flex; align-items: center;
+      transition: color 0.2s;
+    }
+    .eye-btn:hover { color: rgba(255,255,255,0.9); }
+    .eye-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
+      text-decoration: none; margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: #fff; }
+    .back-btn svg { width: 16px; height: 16px; }
+
+    .err-msg {
+      font-size: 12px;
+      color: #ff9090;
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* Forgot password row */
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin: -6px 0 18px;
+    }
+
+    .forgot-row a {
+      font-size: 12px;
+      color: rgba(255,255,255,0.72);
+      text-decoration: none;
+      font-style: italic;
+    }
+    .forgot-row a:hover { color: #fff; text-decoration: underline; }
+
+    /* Remember me */
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 26px;
+    }
+
+    .remember-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: #60c0ff;
+      cursor: pointer; flex-shrink: 0;
+    }
+
+    .remember-row label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.85);
+      cursor: pointer; user-select: none;
+    }
+
+    /* select role */
+    .field-select { position: relative; margin-bottom: 16px; }
+    .field-select select {
+      width: 100%;
+      padding: 13px 40px 13px 18px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.32);
+      border-radius: 12px;
+      font-size: 14px; color: #fff;
+      outline: none; appearance: none; -webkit-appearance: none;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .field-select select option { background: #1a3558; color: #fff; }
+    .field-select select:focus {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.6);
+    }
+    .field-select select.err { border-color: rgba(255,90,90,0.7); }
+    .field-select::after {
+      content: '';
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid rgba(255,255,255,0.65);
+      pointer-events: none;
+    }
+
+    /* Login button */
+    .btn-login {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #4a90c0 0%, #2a6090 100%);
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; margin-bottom: 22px;
+      box-shadow: 0 4px 24px rgba(42,90,140,0.55);
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .btn-login:hover {
+      opacity: 0.92; transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(42,90,140,0.65);
+    }
+    .btn-login:active { transform: translateY(0); }
+
+    /* Register link */
+    .register-link {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .register-link a {
+      color: #90d8ff;
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 4px;
+    }
+    .register-link a:hover { text-decoration: underline; }
+
+    /* ── SCROLL STRIP ── */
+    .scroll-strip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 115px;
+      z-index: 5;
+      overflow: hidden;
+      padding: 10px 0;
+    }
+
+    .scroll-strip::before,
+    .scroll-strip::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 140px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .scroll-strip::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(8,20,50,0.75), transparent);
+    }
+    .scroll-strip::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(8,20,50,0.75), transparent);
+    }
+
+    .scroll-track {
+      display: flex;
+      gap: 10px;
+      width: max-content;
+      animation: scrollLeft 35s linear infinite;
+    }
+
+    .scroll-track:hover { animation-play-state: paused; }
+
+    .scroll-track img {
+      height: 90px; width: 155px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      opacity: 0.72;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      transition: opacity 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .scroll-track img:hover { opacity: 1; transform: scale(1.04); }
+
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Swiper pagination */
+    .bg-swiper .swiper-pagination {
+      bottom: 128px;
+    }
+    .bg-swiper .swiper-pagination-bullet {
+      background: rgba(255,255,255,0.55);
+      width: 8px; height: 8px;
+      transition: all 0.3s;
+      opacity: 1;
+    }
+    .bg-swiper .swiper-pagination-bullet-active {
+      background: #fff;
+      width: 26px;
+      border-radius: 4px;
+    }
+
+    /* Slide caption */
+    .slide-caption {
+      position: fixed;
+      bottom: 140px;
+      left: 52px;
+      z-index: 6;
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      pointer-events: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 130px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #4a90c0, #2a6090);
+      color: #fff; padding: 14px 30px; border-radius: 14px;
+      font-weight: 600; font-size: 14px; z-index: 999;
+      box-shadow: 0 8px 32px rgba(42,90,140,0.4);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; white-space: nowrap;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      body { overflow-y: auto; }
+      .page { padding: 20px 16px 30px; align-items: center; }
+      .glass-card { padding: 36px 28px 30px; }
+      .glass-card h2 { font-size: 22px; letter-spacing: 2px; margin-bottom: 24px; }
+    }
+    @media (max-width: 480px) {
+      .glass-card { padding: 28px 18px 24px; border-radius: 20px; }
+      .glass-card h2 { font-size: 20px; margin-bottom: 20px; }
+      .field input { font-size: 13px; padding: 11px 40px 11px 14px; }
+      .field-select select { font-size: 13px; padding: 11px 36px 11px 14px; }
+      .btn-login { font-size: 14px; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<a href="login.html" class="site-logo">
+  <img src="assets/stackly-logo (1).webp" alt="Stackly" />
+</a>
+
+
+<div class="bg-swiper">
+  <div class="swiper" id="bgSwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img src="assets/hero-1.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-2.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-3.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-4.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-5.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-6.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-7.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-8.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-sketch.webp" alt="Architecture Sketch"/>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</div>
+
+<!-- Dark overlay -->
+<div class="bg-overlay"></div>
+
+<!-- ── LOGIN CARD ── -->
+<div class="page">
+  <div class="glass-card">
+    <h2>Login</h2>
+
+    <form id="loginForm" novalidate>
+
+      <div class="field-select">
+        <select id="role">
+          <option value="" disabled selected>Select Role</option>
+          <option value="admin">Admin</option>
+          <option value="client">Client</option>
+        </select>
+        <div class="err-msg" id="roleErr">Please select a role.</div>
+      </div>
+
+      <div class="field">
+        <input type="text" id="email" placeholder="Email" autocomplete="username"/>
+        <span class="field-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </span>
+        <div class="err-msg" id="emailErr">Please enter your email.</div>
+      </div>
+
+      <div class="field">
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password"/>
+        <button type="button" class="eye-btn" onclick="togglePw()" aria-label="Show password">
+          <svg id="eyeIcon" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+        <div class="err-msg" id="pwErr">Please enter your password.</div>
+      </div>
+
+      <div class="forgot-row">
+        <a href="404.html">Forgot Password?</a>
+      </div>
+
+      <div class="remember-row">
+        <input type="checkbox" id="remember"/>
+        <label for="remember">Remember Me</label>
+      </div>
+
+      <button type="submit" class="btn-login">Login</button>
+
+      <p class="register-link">
+        Don't have an Account? <a href="signup.html">Register</a>
+      </p>
+
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── SCROLLING ARCHITECTURE IMAGES ── -->
+<!-- <div class="scroll-strip">
+  <div class="scroll-track" id="scrollTrack">
+    <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-7.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+    <!-- duplicate for seamless loop -->
+    <!-- <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-7.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+  </div>
+</div> --> 
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+<script>
+  new Swiper('#bgSwiper', {
+    loop: true,
+    speed: 1000,
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+    pagination: { el: '.swiper-pagination', clickable: true },
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    let valid = true;
+
+    const role     = document.getElementById('role');
+    const email    = document.getElementById('email');
+    const pw       = document.getElementById('password');
+    const roleErr  = document.getElementById('roleErr');
+    const emailErr = document.getElementById('emailErr');
+    const pwErr    = document.getElementById('pwErr');
+
+    [email, pw, role].forEach(el => el.classList.remove('err'));
+    [roleErr, emailErr, pwErr].forEach(el => el.style.display = 'none');
+
+    if (!role.value) {
+      role.classList.add('err'); roleErr.style.display = 'block'; valid = false;
+    }
+    if (!email.value.trim()) {
+      email.classList.add('err'); emailErr.style.display = 'block'; valid = false;
+    }
+    if (!pw.value) {
+      pw.classList.add('err'); pwErr.style.display = 'block'; valid = false;
+    }
+
+    if (valid) {
+      localStorage.setItem('rb_email', email.value.trim());
+      localStorage.setItem('rb_role', role.value);
+      window.location.href = role.value === 'admin'
+        ? 'dashboard-admin.html'
+        : 'dashboard-client.html';
+    }
+  });
+
+  function togglePw() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      input.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 2800);
+  }
+</script>
+</body>
+</html>

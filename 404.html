@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 | Stackly</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d1f3c 0%, #1a3a6e 50%, #0d1f3c 100%);
+      overflow: hidden;
+    }
+
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #4a90c0; top: -120px; left: -100px; animation-duration: 14s; }
+    .blob-2 { width: 400px; height: 400px; background: #2a6090; bottom: -80px; right: -80px; animation-duration: 10s; animation-delay: -4s; }
+    .blob-3 { width: 300px; height: 300px; background: #60c0ff; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-duration: 16s; animation-delay: -7s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    .site-logo {
+      position: fixed;
+      top: 18px; left: 24px;
+      z-index: 25;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .site-logo { cursor: pointer; text-decoration: none; }
+    .site-logo img { height: 30px; width: auto; display: block; }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1.5px solid rgba(255,255,255,0.22);
+      border-radius: 28px;
+      padding: 60px 64px 52px;
+      max-width: 440px;
+      width: 90%;
+      box-shadow: 0 12px 60px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.2) inset;
+    }
+
+    .error-code {
+      font-size: 96px;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #90d8ff, #4a90c0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -4px;
+      margin-bottom: 8px;
+    }
+
+    .error-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .error-desc {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 32px;
+      background: linear-gradient(135deg, #4a90c0, #2a6090);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(42,90,140,0.5);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-back:hover { opacity: 0.88; transform: translateY(-2px); }
+    .btn-back svg { width: 16px; height: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<a href="login.html" class="site-logo">
+  <img src="assets/stackly-logo (1).webp" alt="Stackly" />
+</a>
+
+<div class="card">
+  <div class="error-code">404</div>
+  <div class="error-title">Page Not Found</div>
+  <div class="error-desc">
+    This page doesn't exist or hasn't been built yet.<br/>
+    Head back and try again.
+  </div>
+  <a href="login.html" class="btn-back">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to Login
+  </a>
+</div>
+
+</body>
+</html>

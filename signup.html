@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up | Stackly</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+      background: linear-gradient(135deg, #0d1f3c 0%, #1a3a6e 50%, #0d1f3c 100%);
+    }
+
+    /* ── SWIPER BACKGROUND ── */
+    .bg-swiper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .bg-swiper .swiper,
+    .bg-swiper .swiper-wrapper,
+    .bg-swiper .swiper-slide {
+      width: 100%;
+      height: 100%;
+    }
+
+    .bg-swiper .swiper-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1);
+      transition: transform 7s ease;
+    }
+
+    .bg-swiper .swiper-slide-active img {
+      transform: scale(1.07);
+    }
+
+    /* Dark overlay */
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(8, 20, 50, 0.62) 0%,
+        rgba(15, 40, 80, 0.45) 50%,
+        rgba(8, 20, 50, 0.62) 100%
+      );
+    }
+
+    /* ── SITE LOGO ── */
+    .site-logo {
+      position: fixed;
+      top: 18px; left: 24px;
+      z-index: 25;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .site-logo { cursor: pointer; text-decoration: none; }
+    .site-logo img { height: 30px; width: auto; display: block; }
+
+    nav a {
+      color: rgba(255,255,255,0.82);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #fff; }
+
+    .nav-pill {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.42);
+      border-radius: 20px;
+      padding: 6px 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 140px;
+    }
+
+    /* ── GLASS CARD ── */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 28px;
+      padding: 44px 52px 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow:
+        0 8px 60px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255,255,255,0.35) inset;
+    }
+
+    .glass-card h2 {
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 6px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.5);
+    }
+
+    .glass-card .sub {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 30px;
+    }
+
+    /* ── FIELDS ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 12px 44px 12px 16px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.32);
+      border-radius: 12px;
+      font-size: 13.5px;
+      color: #fff;
+      outline: none;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.45); }
+    .field select { padding-right: 36px; cursor: pointer; }
+    .field select option { background: #1a3558; color: #fff; }
+
+    .field input:focus,
+    .field select:focus {
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.6);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+    }
+
+    .field input.err,
+    .field select.err { border-color: rgba(255,90,90,0.7); }
+
+    /* select arrow */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '';
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid rgba(255,255,255,0.65);
+      pointer-events: none;
+    }
+
+    /* password eye */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .eye-btn {
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: rgba(255,255,255,0.55); cursor: pointer;
+      display: flex; align-items: center;
+      transition: color 0.2s;
+    }
+    .eye-btn:hover { color: #fff; }
+    .eye-btn svg { width: 17px; height: 17px; }
+
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,0.75); font-size: 13px; font-weight: 600;
+      text-decoration: none; margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: #fff; }
+    .back-btn svg { width: 16px; height: 16px; }
+
+    /* strength bar */
+    .strength-bar { display: flex; gap: 4px; margin-top: 7px; }
+    .strength-bar span {
+      flex: 1; height: 3px; border-radius: 2px;
+      background: rgba(255,255,255,0.22);
+      transition: background 0.3s;
+    }
+    .strength-label { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+
+    .err-msg { font-size: 12px; color: #ff9090; margin-top: 4px; display: none; }
+
+    /* terms */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin: 6px 0 18px;
+    }
+    .terms-row input[type=checkbox] {
+      accent-color: #60c0ff; width: 16px; height: 16px;
+      margin-top: 2px; flex-shrink: 0; cursor: pointer;
+    }
+    .terms-row label { font-size: 12.5px; color: rgba(255,255,255,0.75); cursor: pointer; line-height: 1.5; }
+    .terms-row a { color: #90d8ff; text-decoration: none; font-weight: 600; }
+    .terms-row a:hover { text-decoration: underline; }
+    .terms-err { font-size: 12px; color: #ff9090; margin-bottom: 12px; display: none; }
+
+    /* submit button */
+    .btn-signup {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #4a90c0 0%, #2a6090 100%);
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; margin-bottom: 20px;
+      box-shadow: 0 4px 24px rgba(42,90,140,0.55);
+      transition: opacity 0.2s, transform 0.15s;
+      font-family: inherit;
+    }
+    .btn-signup:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-signup:active { transform: translateY(0); }
+
+    /* divider */
+    .divider {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(255,255,255,0.25);
+    }
+    .divider span { font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; }
+
+    /* social buttons */
+    .social-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn-social {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 10px; color: #fff;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: background 0.2s; font-family: inherit;
+    }
+    .btn-social:hover { background: rgba(255,255,255,0.22); }
+    .btn-social svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    /* login link */
+    .login-link { text-align: center; font-size: 13px; color: rgba(255,255,255,0.72); }
+    .login-link a { color: #90d8ff; font-weight: 700; text-decoration: none; margin-left: 4px; }
+    .login-link a:hover { text-decoration: underline; }
+
+    /* ── SCROLL STRIP ── */
+    .scroll-strip {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 115px;
+      z-index: 5;
+      overflow: hidden;
+      padding: 10px 0;
+    }
+
+    .scroll-strip::before,
+    .scroll-strip::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 140px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .scroll-strip::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(8,20,50,0.75), transparent);
+    }
+    .scroll-strip::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(8,20,50,0.75), transparent);
+    }
+
+    .scroll-track {
+      display: flex;
+      gap: 10px;
+      width: max-content;
+      animation: scrollLeft 35s linear infinite;
+    }
+
+    .scroll-track:hover { animation-play-state: paused; }
+
+    .scroll-track img {
+      height: 90px; width: 155px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      opacity: 0.72;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      transition: opacity 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .scroll-track img:hover { opacity: 1; transform: scale(1.04); }
+
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* Swiper pagination */
+    .bg-swiper .swiper-pagination {
+      bottom: 128px;
+    }
+    .bg-swiper .swiper-pagination-bullet {
+      background: rgba(255,255,255,0.55);
+      width: 8px; height: 8px;
+      transition: all 0.3s;
+      opacity: 1;
+    }
+    .bg-swiper .swiper-pagination-bullet-active {
+      background: #fff;
+      width: 26px;
+      border-radius: 4px;
+    }
+
+    /* toast */
+    .toast {
+      position: fixed; bottom: 130px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #4a90c0, #2a6090);
+      color: #fff; padding: 14px 30px; border-radius: 14px;
+      font-weight: 600; font-size: 14px; z-index: 999;
+      box-shadow: 0 8px 32px rgba(42,90,140,0.4);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; white-space: nowrap;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .glass-card { padding: 36px 28px 32px; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .glass-card { padding: 28px 18px 24px; border-radius: 20px; }
+      .glass-card h2 { font-size: 20px; }
+      .field input { font-size: 13px; }
+      .two-col { grid-template-columns: 1fr; }
+      .social-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SWIPER BACKGROUND ── -->
+<a href="login.html" class="site-logo">
+  <img src="assets/stackly-logo (1).webp" alt="Stackly" />
+</a>
+
+<div class="bg-swiper">
+  <div class="swiper" id="bgSwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide">
+        <img src="assets/hero-9.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-10.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-1.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-5.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-8.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-6.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-2.webp" alt="Architecture"/>
+      </div>
+      <div class="swiper-slide">
+        <img src="assets/hero-sketch.webp" alt="Architecture Sketch"/>
+      </div>
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</div>
+
+<!-- Dark overlay -->
+<div class="bg-overlay"></div>
+
+<!-- ── SIGNUP CARD ── -->
+<div class="page">
+  <div class="glass-card">
+    <a href="login.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Back
+    </a>
+    <h2>Sign Up</h2>
+    <p class="sub">Create your free account today</p>
+
+    <form id="signupForm" novalidate>
+
+      <!-- Name row -->
+      <div class="two-col">
+        <div class="field">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" placeholder="John" autocomplete="given-name" oninput="lettersOnly(this,'firstErr')"/>
+          <div class="err-msg" id="firstErr">Letters only, please.</div>
+        </div>
+        <div class="field">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" placeholder="Doe" autocomplete="family-name" oninput="lettersOnly(this,'lastErr')"/>
+          <div class="err-msg" id="lastErr">Letters only, please.</div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+        <div class="err-msg" id="emailErr">Enter a valid email address.</div>
+      </div>
+
+      <!-- Password -->
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password" oninput="checkStrength()"/>
+          <button type="button" class="eye-btn" onclick="togglePw('password','eyeA')" aria-label="Show password">
+            <svg id="eyeA" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="strength-bar">
+          <span id="s1"></span><span id="s2"></span><span id="s3"></span><span id="s4"></span>
+        </div>
+        <div class="strength-label" id="sLabel"></div>
+        <div class="err-msg" id="pwErr">Password must be at least 8 characters.</div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="field">
+        <label for="confirmPw">Confirm Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="confirmPw" placeholder="Re-enter password" autocomplete="new-password"/>
+          <button type="button" class="eye-btn" onclick="togglePw('confirmPw','eyeB')" aria-label="Show confirm password">
+            <svg id="eyeB" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="err-msg" id="confirmErr">Passwords do not match.</div>
+      </div>
+
+      <!-- Terms -->
+      <div class="terms-row">
+        <input type="checkbox" id="terms"/>
+        <label for="terms">
+          I agree to the <a href="404.html">Terms of Service</a> and <a href="404.html">Privacy Policy</a>
+        </label>
+      </div>
+      <div class="terms-err" id="termsErr">You must agree to continue.</div>
+
+      <button type="submit" class="btn-signup">Create Account</button>
+
+      <!-- Social -->
+      <div class="divider"><span>Or sign up with</span></div>
+
+      <div class="social-grid">
+        <button type="button" class="btn-social" onclick="window.location.href='404.html'">
+          <svg viewBox="0 0 48 48">
+            <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
+            <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16.1 19 13 24 13c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+            <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.3 26.7 36 24 36c-5.2 0-9.6-3.3-11.2-8H6.1C9.5 35.8 16.2 44 24 44z"/>
+            <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.2 5.6l6.2 5.2C37 38.8 44 33 44 24c0-1.3-.1-2.6-.4-3.9z"/>
+          </svg>
+          Google
+        </button>
+        <button type="button" class="btn-social" onclick="window.location.href='404.html'">
+          <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.27h3.32l-.53 3.5h-2.79V24C19.62 23.1 24 18.1 24 12.07z"/></svg>
+          Facebook
+        </button>
+        <button type="button" class="btn-social" onclick="window.location.href='404.html'">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.763l7.726-8.835L1.254 2.25H8.08l4.259 5.632 5.905-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          X (Twitter)
+        </button>
+        <button type="button" class="btn-social" onclick="window.location.href='404.html'">
+          <svg viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </button>
+      </div>
+
+      <p class="login-link">Already have an account? <a href="login.html">Sign in</a></p>
+
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── SCROLLING ARCHITECTURE IMAGES ── -->
+<!-- <div class="scroll-strip">
+  <div class="scroll-track">
+    <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-7.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+    <!-- duplicate for seamless loop -->
+    <!-- <img src="assets/thumb-1.webp" alt="Architecture"/>
+    <img src="assets/thumb-2.webp" alt="Architecture"/>
+    <img src="assets/thumb-3.webp" alt="Architecture"/>
+    <img src="assets/thumb-4.webp" alt="Architecture"/>
+    <img src="assets/thumb-5.webp" alt="Architecture"/>
+    <img src="assets/thumb-6.webp" alt="Architecture"/>
+    <img src="assets/thumb-7.webp" alt="Architecture"/>
+    <img src="assets/thumb-8.webp" alt="Architecture"/>
+    <img src="assets/thumb-9.webp" alt="Architecture"/>
+    <img src="assets/thumb-10.webp" alt="Architecture"/>
+  </div>
+</div> --> 
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+<script>
+  new Swiper('#bgSwiper', {
+    loop: true,
+    speed: 1000,
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    effect: 'fade',
+    fadeEffect: { crossFade: true },
+    pagination: { el: '.swiper-pagination', clickable: true },
+  });
+
+  function togglePw(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      input.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  function checkStrength() {
+    const pw     = document.getElementById('password').value;
+    const bars   = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+    const label  = document.getElementById('sLabel');
+    const colors = ['#e74c3c','#e67e22','#f1c40f','#27ae60'];
+    const labels = ['Too weak','Weak','Good','Strong'];
+
+    let score = 0;
+    if (pw.length >= 8)           score++;
+    if (/[A-Z]/.test(pw))         score++;
+    if (/[0-9]/.test(pw))         score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+    bars.forEach((b, i) => {
+      b.style.background = i < score ? colors[score - 1] : 'rgba(255,255,255,0.22)';
+    });
+    label.textContent = pw.length ? labels[score - 1] || '' : '';
+    label.style.color = pw.length ? colors[score - 1] : 'rgba(255,255,255,0.6)';
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    let valid = true;
+
+    const checks = [
+      { id:'firstName', errId:'firstErr', test: v => /^[A-Za-z\s]+$/.test(v.trim()) && v.trim().length > 0 },
+      { id:'lastName',  errId:'lastErr',  test: v => /^[A-Za-z\s]+$/.test(v.trim()) && v.trim().length > 0 },
+      { id:'email',     errId:'emailErr', test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      { id:'password',  errId:'pwErr',    test: v => v.length >= 8 },
+    ];
+
+    checks.forEach(c => {
+      const el  = document.getElementById(c.id);
+      const err = document.getElementById(c.errId);
+      el.classList.remove('err'); err.style.display = 'none';
+      if (!c.test(el.value)) { el.classList.add('err'); err.style.display = 'block'; valid = false; }
+    });
+
+    const pw  = document.getElementById('password');
+    const cpw = document.getElementById('confirmPw');
+    const cErr = document.getElementById('confirmErr');
+    cpw.classList.remove('err'); cErr.style.display = 'none';
+    if (pw.value !== cpw.value) { cpw.classList.add('err'); cErr.style.display = 'block'; valid = false; }
+
+    const terms    = document.getElementById('terms');
+    const termsErr = document.getElementById('termsErr');
+    termsErr.style.display = 'none';
+    if (!terms.checked) { termsErr.style.display = 'block'; valid = false; }
+
+    if (valid) {
+      showToast('Account created! Redirecting to login...');
+      setTimeout(() => { window.location.href = 'login.html'; }, 1800);
+    }
+  });
+
+  function lettersOnly(input, errId) {
+    const err = document.getElementById(errId);
+    const invalid = input.value && !/^[A-Za-z\s]*$/.test(input.value);
+    if (invalid) {
+      input.value = input.value.replace(/[^A-Za-z\s]/g, '');
+      input.classList.add('err');
+      err.style.display = 'block';
+      err.textContent = 'Letters only, please.';
+    } else {
+      input.classList.remove('err');
+      err.style.display = 'none';
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.opacity = '1';
+    setTimeout(() => { t.style.opacity = '0'; }, 2800);
+  }
+</script>
+</body>
+</html>
