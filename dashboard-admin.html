@@ -285,8 +285,8 @@
     /* ── CONTENT GRID ── */
     .content-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
+      grid-template-columns: minmax(0, 1.4fr) 270px;
+      gap: 14px;
     }
 
     /* ── GLASS PANEL ── */
@@ -312,19 +312,25 @@
     }
 
     /* table */
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    thead th:nth-child(1) { width: 36%; }
+    thead th:nth-child(2) { width: 29%; }
+    thead th:nth-child(3) { width: 20%; }
+    thead th:nth-child(4) { width: 15%; }
     thead th {
       text-align: left; font-size: 11px; font-weight: 800;
       color: #0a1f35; letter-spacing: 0.8px; text-transform: uppercase;
-      padding: 0 12px 12px 0;
+      padding: 0 8px 12px 0;
       border-bottom: 1px solid rgba(255,255,255,0.3);
     }
     tbody tr { border-bottom: 1px solid rgba(255,255,255,0.15); }
     tbody tr:last-child { border-bottom: none; }
     tbody td {
-      padding: 12px 12px 12px 0;
+      padding: 12px 8px 12px 0;
       font-size: 13px; color: #071525; font-weight: 600;
     }
+    tbody td:last-child { white-space: nowrap; }
+    thead th:last-child { white-space: nowrap; }
 
     .client-name { font-weight: 700; color: #071525; }
     .client-email { font-size: 12px; color: #0a1f35; margin-top: 1px; font-weight: 700; }
@@ -417,7 +423,7 @@
       .topbar h1 { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .topbar p { display: none; }
       .topbar-right { gap: 8px; flex-shrink: 0; }
-      .user-email { max-width: 120px; font-size: 12px; padding: 4px 10px; }
+      .user-email { max-width: none; font-size: 12px; padding: 4px 10px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .chart-grid { grid-template-columns: 1fr !important; }
       .content-grid { grid-template-columns: 1fr !important; }
@@ -428,13 +434,22 @@
     @media (max-width: 600px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .main { padding: 70px 14px 120px; }
-      .topbar { padding-left: 58px; }
+      .topbar { flex-wrap: wrap; gap: 4px 8px; padding-left: 58px; margin-bottom: 16px; align-items: center; }
+      .topbar-left { flex: 1 1 auto; min-width: 0; }
+      .topbar-right { flex: 0 0 100%; justify-content: flex-end; gap: 8px; }
+      .user-email { max-width: none; white-space: nowrap; font-size: 11px; padding: 3px 10px; }
+      .panel { padding: 16px 12px; }
+      thead th { font-size: 9px; padding: 0 4px 10px 0; letter-spacing: 0.3px; }
+      tbody td { font-size: 11px; padding: 9px 4px 9px 0; }
+      .client-name { font-size: 11px; }
+      .client-email { font-size: 9.5px; }
+      .badge { font-size: 10px; padding: 2px 7px; }
     }
     @media (max-width: 480px) {
       .stats-grid { grid-template-columns: 1fr !important; }
       .main { padding: 66px 10px 115px; }
       .topbar h1 { font-size: 15px; }
-      .user-email { max-width: 100px; font-size: 11px; padding: 3px 8px; }
+      .user-email { max-width: none; font-size: 11px; padding: 3px 8px; }
       .chart-wrap { height: 160px !important; }
       .dropdown {
         position: fixed !important;
@@ -446,7 +461,7 @@
     @media (max-width: 380px) {
       .main { padding: 62px 8px 110px; }
       .topbar h1 { font-size: 13px; }
-      .user-email { max-width: 85px; font-size: 10px; padding: 2px 6px; }
+      .user-email { max-width: none; font-size: 10px; padding: 2px 6px; }
       .topbar-right { gap: 6px; }
       .sidebar { width: 220px !important; }
     }
@@ -716,7 +731,6 @@
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">Recent Clients</span>
-          <a href="404.html" class="panel-action">View all →</a>
         </div>
         <table>
           <thead>
@@ -732,31 +746,31 @@
               <td><div class="client-name">Arun Kumar</div><div class="client-email">arun@example.com</div></td>
               <td>Smart Office Design</td>
               <td><span class="badge active">Active</span></td>
-              <td>12 May 2026</td>
+              <td>12/05/26</td>
             </tr>
             <tr>
               <td><div class="client-name">Priya Sharma</div><div class="client-email">priya@example.com</div></td>
               <td>Residential Complex</td>
               <td><span class="badge pending">Pending</span></td>
-              <td>10 May 2026</td>
+              <td>10/05/26</td>
             </tr>
             <tr>
               <td><div class="client-name">Rahul Mehta</div><div class="client-email">rahul@example.com</div></td>
               <td>Mall Architecture</td>
               <td><span class="badge active">Active</span></td>
-              <td>08 May 2026</td>
+              <td>08/05/26</td>
             </tr>
             <tr>
               <td><div class="client-name">Sneha Pillai</div><div class="client-email">sneha@example.com</div></td>
               <td>Interior Planning</td>
               <td><span class="badge inactive">Inactive</span></td>
-              <td>05 May 2026</td>
+              <td>05/05/26</td>
             </tr>
             <tr>
               <td><div class="client-name">Dev Nair</div><div class="client-email">dev@example.com</div></td>
               <td>Commercial Tower</td>
               <td><span class="badge active">Active</span></td>
-              <td>02 May 2026</td>
+              <td>02/05/26</td>
             </tr>
           </tbody>
         </table>
@@ -824,11 +838,11 @@
         <div class="panel-header"><span class="panel-title">All Clients</span></div>
         <table><thead><tr><th>Client</th><th>Project</th><th>Status</th><th>Joined</th></tr></thead>
         <tbody>
-          <tr><td><div class="client-name">Arun Kumar</div><div class="client-email">arun@example.com</div></td><td>Smart Office Design</td><td><span class="badge active">Active</span></td><td>12 May 2026</td></tr>
-          <tr><td><div class="client-name">Priya Sharma</div><div class="client-email">priya@example.com</div></td><td>Residential Complex</td><td><span class="badge pending">Pending</span></td><td>10 May 2026</td></tr>
-          <tr><td><div class="client-name">Rahul Mehta</div><div class="client-email">rahul@example.com</div></td><td>Mall Architecture</td><td><span class="badge active">Active</span></td><td>08 May 2026</td></tr>
-          <tr><td><div class="client-name">Sneha Pillai</div><div class="client-email">sneha@example.com</div></td><td>Interior Planning</td><td><span class="badge inactive">Inactive</span></td><td>05 May 2026</td></tr>
-          <tr><td><div class="client-name">Dev Nair</div><div class="client-email">dev@example.com</div></td><td>Commercial Tower</td><td><span class="badge active">Active</span></td><td>02 May 2026</td></tr>
+          <tr><td><div class="client-name">Arun Kumar</div><div class="client-email">arun@example.com</div></td><td>Smart Office Design</td><td><span class="badge active">Active</span></td><td>12/05/26</td></tr>
+          <tr><td><div class="client-name">Priya Sharma</div><div class="client-email">priya@example.com</div></td><td>Residential Complex</td><td><span class="badge pending">Pending</span></td><td>10/05/26</td></tr>
+          <tr><td><div class="client-name">Rahul Mehta</div><div class="client-email">rahul@example.com</div></td><td>Mall Architecture</td><td><span class="badge active">Active</span></td><td>08/05/26</td></tr>
+          <tr><td><div class="client-name">Sneha Pillai</div><div class="client-email">sneha@example.com</div></td><td>Interior Planning</td><td><span class="badge inactive">Inactive</span></td><td>05/05/26</td></tr>
+          <tr><td><div class="client-name">Dev Nair</div><div class="client-email">dev@example.com</div></td><td>Commercial Tower</td><td><span class="badge active">Active</span></td><td>02/05/26</td></tr>
         </tbody></table>
       </div>
     </div>
@@ -859,10 +873,10 @@
         <div class="panel-header"><span class="panel-title">Reports</span></div>
         <table><thead><tr><th>Report</th><th>Type</th><th>Date</th><th>Status</th></tr></thead>
         <tbody>
-          <tr><td>Monthly Revenue Report</td><td>Finance</td><td>01 May 2026</td><td><span class="badge active">Ready</span></td></tr>
-          <tr><td>Client Growth Analysis</td><td>Analytics</td><td>28 Apr 2026</td><td><span class="badge active">Ready</span></td></tr>
-          <tr><td>Project Completion Rate</td><td>Operations</td><td>20 Apr 2026</td><td><span class="badge pending">Pending</span></td></tr>
-          <tr><td>Overdue Invoices</td><td>Finance</td><td>15 Apr 2026</td><td><span class="badge active">Ready</span></td></tr>
+          <tr><td>Monthly Revenue Report</td><td>Finance</td><td>01/05/26</td><td><span class="badge active">Ready</span></td></tr>
+          <tr><td>Client Growth Analysis</td><td>Analytics</td><td>28/04/26</td><td><span class="badge active">Ready</span></td></tr>
+          <tr><td>Project Completion Rate</td><td>Operations</td><td>20/04/26</td><td><span class="badge pending">Pending</span></td></tr>
+          <tr><td>Overdue Invoices</td><td>Finance</td><td>15/04/26</td><td><span class="badge active">Ready</span></td></tr>
         </tbody></table>
       </div>
     </div>

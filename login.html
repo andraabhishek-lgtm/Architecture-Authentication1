@@ -210,34 +210,52 @@
       cursor: pointer; user-select: none;
     }
 
-    /* select role */
+    /* ── CUSTOM ROLE DROPDOWN ── */
     .field-select { position: relative; margin-bottom: 16px; }
-    .field-select select {
-      width: 100%;
-      padding: 13px 40px 13px 18px;
+
+    .csel-btn {
+      width: 100%; padding: 13px 40px 13px 18px;
       background: rgba(255,255,255,0.14);
       border: 1px solid rgba(255,255,255,0.32);
       border-radius: 12px;
-      font-size: 14px; color: #fff;
-      outline: none; appearance: none; -webkit-appearance: none;
-      cursor: pointer; font-family: inherit;
-      transition: background 0.2s, border-color 0.2s;
+      font-size: 14px; color: rgba(255,255,255,0.78);
+      outline: none; cursor: pointer; font-family: inherit;
+      text-align: left; display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
     }
-    .field-select select option { background: #1a3558; color: #fff; }
-    .field-select select:focus {
+    .csel-btn.has-value { color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.6); }
+    .csel-btn.open, .csel-btn:focus {
       background: rgba(255,255,255,0.22);
       border-color: rgba(255,255,255,0.6);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
     }
-    .field-select select.err { border-color: rgba(255,90,90,0.7); }
-    .field-select::after {
-      content: '';
-      position: absolute; right: 14px; top: 50%;
-      transform: translateY(-50%);
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-top: 5px solid rgba(255,255,255,0.65);
-      pointer-events: none;
+    .csel-btn.err { border-color: rgba(255,90,90,0.7); }
+    .csel-btn svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform 0.22s; stroke: rgba(255,255,255,0.9); }
+    .csel-btn.open svg { transform: rotate(180deg); }
+
+    .csel-list {
+      display: none;
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #0d2245;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 14px;
+      z-index: 200;
+      overflow: hidden;
+      list-style: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
+    .csel-list.open { display: block; }
+    .csel-list li {
+      padding: 13px 18px;
+      font-size: 14px; color: #fff; font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .csel-list li:last-child { border-bottom: none; }
+    .csel-list li:hover { background: rgba(255,255,255,0.12); }
 
     /* Login button */
     .btn-login {
@@ -439,12 +457,16 @@
 
     <form id="loginForm" novalidate>
 
-      <div class="field-select">
-        <select id="role">
-          <option value="" disabled selected>Select Role</option>
-          <option value="admin">Admin</option>
-          <option value="client">Client</option>
-        </select>
+      <div class="field-select" id="roleWrap">
+        <button type="button" class="csel-btn" id="roleBtn">
+          <span id="roleDisplay">Select Role</span>
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <ul class="csel-list" id="roleList">
+          <li onclick="selectRole('admin','Admin')">Admin</li>
+          <li onclick="selectRole('client','Client')">Client</li>
+        </ul>
+        <input type="hidden" id="role" value=""/>
         <div class="err-msg" id="roleErr">Please select a role.</div>
       </div>
 
@@ -529,22 +551,53 @@
     pagination: { el: '.swiper-pagination', clickable: true },
   });
 
+  /* ── Custom dropdown logic ── */
+  document.getElementById('roleBtn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    const btn  = document.getElementById('roleBtn');
+    const list = document.getElementById('roleList');
+    const open = list.classList.contains('open');
+    btn.classList.toggle('open', !open);
+    list.classList.toggle('open', !open);
+  });
+
+  document.addEventListener('click', function() {
+    document.getElementById('roleBtn').classList.remove('open');
+    document.getElementById('roleList').classList.remove('open');
+  });
+
+  document.getElementById('roleList').addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+
+  function selectRole(value, label) {
+    document.getElementById('role').value = value;
+    document.getElementById('roleDisplay').textContent = label;
+    const btn = document.getElementById('roleBtn');
+    btn.classList.add('has-value');
+    btn.classList.remove('open', 'err');
+    document.getElementById('roleList').classList.remove('open');
+    document.getElementById('roleErr').style.display = 'none';
+  }
+
   document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault();
     let valid = true;
 
-    const role     = document.getElementById('role');
+    const roleVal  = document.getElementById('role').value;
+    const roleBtn  = document.getElementById('roleBtn');
     const email    = document.getElementById('email');
     const pw       = document.getElementById('password');
     const roleErr  = document.getElementById('roleErr');
     const emailErr = document.getElementById('emailErr');
     const pwErr    = document.getElementById('pwErr');
 
-    [email, pw, role].forEach(el => el.classList.remove('err'));
+    [email, pw].forEach(el => el.classList.remove('err'));
+    roleBtn.classList.remove('err');
     [roleErr, emailErr, pwErr].forEach(el => el.style.display = 'none');
 
-    if (!role.value) {
-      role.classList.add('err'); roleErr.style.display = 'block'; valid = false;
+    if (!roleVal) {
+      roleBtn.classList.add('err'); roleErr.style.display = 'block'; valid = false;
     }
     if (!email.value.trim()) {
       email.classList.add('err'); emailErr.style.display = 'block'; valid = false;
@@ -555,8 +608,8 @@
 
     if (valid) {
       localStorage.setItem('rb_email', email.value.trim());
-      localStorage.setItem('rb_role', role.value);
-      window.location.href = role.value === 'admin'
+      localStorage.setItem('rb_role', roleVal);
+      window.location.href = roleVal === 'admin'
         ? 'dashboard-admin.html'
         : 'dashboard-client.html';
     }
