@@ -218,12 +218,12 @@
       display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
     }
     .stat-icon svg { width: 19px; height: 19px; }
-    .stat-icon.blue   { background: rgba(59,130,246,0.15); color: #2563eb; }
-    .stat-icon.green  { background: rgba(16,185,129,0.15); color: #059669; }
-    .stat-icon.amber  { background: rgba(245,158,11,0.15); color: #d97706; }
+    .stat-icon.blue   { background: rgba(59,130,246,0.28); color: #1d4ed8; }
+    .stat-icon.green  { background: rgba(16,185,129,0.28); color: #047857; }
+    .stat-icon.amber  { background: rgba(245,158,11,0.28); color: #b45309; }
     .stat-value { font-size: 26px; font-weight: 800; color: #1a3050; }
     .stat-label { font-size: 12px; color: #4a6a8a; margin-top: 4px; font-weight: 500; }
-    .stat-sub   { font-size: 11px; color: #6a90aa; margin-top: 8px; }
+    .stat-sub   { font-size: 11px; color: #1a3a55; margin-top: 8px; }
 
     /* chart row */
     .chart-grid {
@@ -264,29 +264,29 @@
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .proj-icon svg { width: 17px; height: 17px; }
-    .proj-icon.blue   { background: rgba(59,130,246,0.15); color: #2563eb; }
-    .proj-icon.green  { background: rgba(16,185,129,0.15); color: #059669; }
-    .proj-icon.purple { background: rgba(139,92,246,0.15); color: #7c3aed; }
-    .proj-icon.amber  { background: rgba(245,158,11,0.15); color: #d97706; }
+    .proj-icon.blue   { background: rgba(59,130,246,0.28); color: #1d4ed8; }
+    .proj-icon.green  { background: rgba(16,185,129,0.28); color: #047857; }
+    .proj-icon.purple { background: rgba(139,92,246,0.28); color: #6d28d9; }
+    .proj-icon.amber  { background: rgba(245,158,11,0.28); color: #b45309; }
 
     .proj-info { flex: 1; }
     .proj-name  { font-size: 13px; font-weight: 600; color: #1a3050; }
-    .proj-desc  { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+    .proj-desc  { font-size: 11px; color: #1a3a55; margin-top: 2px; }
 
     .proj-progress { margin-top: 6px; }
     .progress-bar  { height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 2px; }
-    .progress-text { font-size: 11px; color: #6a90aa; margin-top: 3px; }
+    .progress-text { font-size: 11px; color: #1a3a55; margin-top: 3px; }
 
     .badge {
       display: inline-flex; align-items: center;
       padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap;
     }
-    .badge.paid     { background: rgba(16,185,129,0.15); color: #059669; }
-    .badge.due      { background: rgba(245,158,11,0.15);  color: #d97706; }
-    .badge.overdue  { background: rgba(239,68,68,0.15);   color: #dc2626; }
-    .badge.open     { background: rgba(59,130,246,0.15);  color: #2563eb; }
-    .badge.resolved { background: rgba(107,114,128,0.15); color: #6b7280; }
+    .badge.paid     { background: rgba(16,185,129,0.28);  color: #047857; }
+    .badge.due      { background: rgba(245,158,11,0.28);  color: #b45309; }
+    .badge.overdue  { background: rgba(239,68,68,0.28);   color: #b91c1c; }
+    .badge.open     { background: rgba(59,130,246,0.28);  color: #1d4ed8; }
+    .badge.resolved { background: rgba(107,114,128,0.28); color: #374151; }
 
     /* invoice rows */
     .inv-row {
@@ -295,7 +295,7 @@
     }
     .inv-row:last-child { border-bottom: none; padding-bottom: 0; }
     .inv-id   { font-size: 13px; font-weight: 600; color: #1a3050; }
-    .inv-date { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+    .inv-date { font-size: 11px; color: #1a3a55; margin-top: 2px; }
     .inv-amt  { font-size: 14px; font-weight: 700; color: #1a3050; margin-right: 12px; }
     .inv-right { display: flex; align-items: center; gap: 10px; }
 
@@ -307,7 +307,7 @@
     .ticket-row:last-child { border-bottom: none; padding-bottom: 0; }
     .ticket-num  { font-size: 12px; font-weight: 700; color: #3a7aaa; }
     .ticket-subj { font-size: 13px; font-weight: 500; color: #1a3050; }
-    .ticket-date { font-size: 11px; color: #6a90aa; margin-top: 2px; }
+    .ticket-date { font-size: 11px; color: #1a3a55; margin-top: 2px; }
 
     /* ── HAMBURGER ── */
     .hamburger {
@@ -616,7 +616,7 @@
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">Monthly Spending</span>
-          <span style="font-size:12px;color:#6a90aa;">Last 6 months</span>
+          <span style="font-size:12px;color:#1a3a55;">Last 6 months</span>
         </div>
         <div class="chart-wrap"><canvas id="spendChart"></canvas></div>
       </div>
@@ -945,10 +945,10 @@
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#6a90aa', font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { color: '#1a3a55', font: { size: 11 } } },
         y: {
           grid: { color: 'rgba(255,255,255,0.2)' },
-          ticks: { color: '#6a90aa', font: { size: 11 }, callback: v => '₹' + (v/1000) + 'K' }
+          ticks: { color: '#1a3a55', font: { size: 11 }, callback: v => '₹' + (v/1000) + 'K' }
         }
       }
     }
